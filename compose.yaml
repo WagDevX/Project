@@ -1,0 +1,49 @@
+services:
+  database:
+    container_name: database
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: back-end
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    depends_on:
+      - database
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: root@root.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    restart: unless-stopped
+
+  back-end:
+    container_name: back-end
+    build: ./back-end
+    depends_on:
+      - database
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./back-end:/app
+      - back-end_node_modules:/app/node_modules
+
+  front-end:
+    container_name: front-end
+    build: ./front-end
+    ports:
+      - "80:80"
+    volumes:
+      - ./front-end:/app
+      - front-end_node_modules:/app/node_modules
+volumes:
+  postgres-data:
+  back-end_node_modules:
+  front-end_node_modules:
