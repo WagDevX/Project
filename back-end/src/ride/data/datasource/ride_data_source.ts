@@ -1,6 +1,7 @@
-import { Driver } from "../../domain/entities/driver";
-
 import { PrismaClient } from "@prisma/client";
+import { Driver } from "../../domain/entities/driver";
+import { ServerException } from "../../../core/errors/exception";
+import { Failure } from "../../../core/errors/failure";
 
 export abstract class RideDataSource {
   abstract createDriver(params: Driver): Promise<Driver>;
@@ -14,6 +15,10 @@ export class RideDataSourceImpl extends RideDataSource {
   }
 
   async createDriver(params: Driver): Promise<Driver> {
-    return params;
+    try {
+      return await this.prismaClient.driver.create({ data: params });
+    } catch (error) {
+      throw new ServerException(error?.toString() ?? "Unknown error", 400, "CREATE_DRIVER_ERROR");
+    }
   }
 }
