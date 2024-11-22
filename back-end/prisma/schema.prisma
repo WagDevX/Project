@@ -20,3 +20,13 @@ model User {
   password String
   email String  @unique
 }
+
+model Driver {
+  id    Int     @id @default(autoincrement())
+  name  String
+  description String
+  car String
+  rating Float
+  tax Float
+  minKm Int
+}
