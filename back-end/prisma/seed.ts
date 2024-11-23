@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { skip } from "node:test";
 
 const prisma = new PrismaClient();
 
@@ -30,30 +31,34 @@ async function main() {
         minKm: 10,
       },
     ],
+    skipDuplicates: true,
   });
 
-  await prisma.review.createMany({
-    data: [
-      {
-        rating: 2,
-        comment:
-          "Motorista simpático, mas errou o caminho 3 vezes. O carro cheira a donuts.",
-        driverId: 1,
-      },
-      {
-        rating: 4,
-        comment:
-          "Que viagem incrível! O carro é um show à parte e o motorista, apesar de ter uma cara de poucos amigos, foi super gente boa. Recomendo!",
-        driverId: 2,
-      },
-      {
-        rating: 5,
-        comment:
-          "Serviço impecável! O motorista é a própria definição de classe e o carro é simplesmente magnífico. Uma experiência digna de um agente secreto.",
-        driverId: 3,
-      },
-    ],
-  });
+  {
+    await prisma.review.createMany({
+      data: [
+        {
+          rating: 2,
+          comment:
+            "Motorista simpático, mas errou o caminho 3 vezes. O carro cheira a donuts.",
+          driverId: 1,
+        },
+        {
+          rating: 4,
+          comment:
+            "Que viagem incrível! O carro é um show à parte e o motorista, apesar de ter uma cara de poucos amigos, foi super gente boa. Recomendo!",
+          driverId: 2,
+        },
+        {
+          rating: 5,
+          comment:
+            "Serviço impecável! O motorista é a própria definição de classe e o carro é simplesmente magnífico. Uma experiência digna de um agente secreto.",
+          driverId: 3,
+        },
+      ],
+      skipDuplicates: true,
+    });
+  }
 }
 
 main()

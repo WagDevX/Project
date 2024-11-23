@@ -24,12 +24,16 @@ export class RideDataSourceImpl extends RideDataSource {
           minKm: params.minKm,
         },
       });
+      console.log(result);
 
       const driverCreated: Driver = {
         ...result,
+        id: result.id,
         review: undefined,
         rides: [],
       };
+
+      console.log(driverCreated);
 
       return driverCreated;
     } catch (error) {

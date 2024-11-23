@@ -24,8 +24,8 @@ export class RideRepositoryImpl implements RideRepository {
 
   async createDriver(params: Driver): ResultFuture<Driver> {
     try {
-      await this.datasource.createDriver(params);
-      return new Right(params);
+      const result = await this.datasource.createDriver(params);
+      return new Right(result);
     } catch (error) {
       if (error instanceof ServerException) {
         return new Left(
