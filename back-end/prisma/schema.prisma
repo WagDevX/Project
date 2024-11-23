@@ -14,19 +14,41 @@ datasource db {
 }
 
 
-model User {
-  id    Int     @id @default(autoincrement())
+model Customer {
+  id    Int    @id @default(autoincrement())
   name  String
-  password String
-  email String  @unique
+  rides Ride[] @relation("CustomerRides")
 }
 
 model Driver {
-  id    Int     @id @default(autoincrement())
-  name  String
+  id          Int      @id @default(autoincrement())
   description String
-  car String
-  rating Float
-  tax Float
-  minKm Int
+  name        String
+  car         String
+  tax         Float
+  review      Review?   @relation("DriverReviews")
+  minKm       Int
+  rides       Ride[] @relation("DriverRides")
+}
+
+model Review {
+  id       Int    @id @default(autoincrement())
+  rating   Int?
+  comment  String?
+  driver   Driver?  @relation("DriverReviews",fields: [driverId] , references: [id])
+  driverId Int     @unique
+}
+
+model Ride {
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  origin      String
+  destination String
+  distance    Float
+  duration    String
+  driverId    Int
+  driver      Driver   @relation("DriverRides", fields: [driverId], references: [id])
+  customer    Customer @relation("CustomerRides", fields: [customerId], references: [id])
+  customerId  Int
+  value       Float
 }

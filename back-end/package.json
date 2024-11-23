@@ -5,6 +5,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/express": "^5.0.0",
+    "@types/node": "^22.9.3",
     "epress": "^0.0.1-security",
     "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
@@ -13,7 +14,8 @@
   "scripts": {
     "run": "ts-node src/server.ts",
     "start": "ts-node src/server.ts",
-    "dev": "ts-node src/server.ts"
+    "dev": "ts-node src/server.ts",
+    "seed": "ts-node --transpile-only prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

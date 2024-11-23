@@ -10,7 +10,13 @@ export class CreateDriver extends UseCaseWithParams<Driver, Driver> {
   }
   async call(params: Driver): ResultFuture<Driver> {
     if (!params.name) {
-      return new Left(new Failure({ error_code: "INVALID_PARAMS", error_message: "Name is required", status_code: 400 }));
+      return new Left(
+        new Failure({
+          error_code: "INVALID_DATA",
+          error_description: "Name is required",
+          status_code: 400,
+        })
+      );
     }
     return await this.driverRepository.createDriver(params);
   }
