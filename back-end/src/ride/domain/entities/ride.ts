@@ -9,7 +9,7 @@ export interface RideOptions {
   };
   distance: number;
   duration: string;
-  options: [DriverOption];
+  options: DriverOption[];
   routeResponse: object;
 }
 

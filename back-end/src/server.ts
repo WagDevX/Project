@@ -1,11 +1,6 @@
 import express, { Request, Response } from "express";
-import RideRouter from "./ride/presentation/router/ride_router";
-import { CreateDriver } from "./ride/domain/usecases/create_driver";
-import { RideRepositoryImpl } from "./ride/data/repo/ride_repo_impl";
-import { RideDataSourceImpl } from "./ride/data/datasource/ride_data_source";
-import { PrismaClient } from "@prisma/client";
-
-const prismaClient = new PrismaClient();
+import bodyParser from "body-parser";
+import { rideMiddleware } from "./ride/presentation/middleware/ride_middleware";
 
 var cors = require("cors");
 
@@ -15,12 +10,21 @@ const port = 8080;
 app.use(cors());
 app.options("*", cors());
 app.use(express.json());
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello, World!");
+app.use(bodyParser.json());
+app.use((err: Error, _req: Request, res: any, next: any) => {
+  if (err instanceof SyntaxError) {
+    return res.status(400).json({
+      error_code: "INVALID_DATA",
+      error_description:
+        "Os dados fornecidos no corpo da requisição são inválidos.",
+    });
+  }
+  next(err);
 });
 
-const rideMiddleware = RideRouter(new CreateDriver(new RideRepositoryImpl(new RideDataSourceImpl({ prismaClient }))));
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello World!");
+});
 
 app.use("/ride", rideMiddleware);
 

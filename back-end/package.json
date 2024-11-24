@@ -18,9 +18,11 @@
     "seed": "ts-node --transpile-only prisma/seed.ts"
   },
   "dependencies": {
+    "@googlemaps/google-maps-services-js": "^3.4.0",
     "@prisma/client": "^5.22.0",
     "@prisma/extension-optimize": "^1.0.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.21.1"
   }
 }

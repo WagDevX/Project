@@ -16,8 +16,23 @@ export class RideRepositoryImpl implements RideRepository {
     this.datasource = datasource;
   }
 
-  estimateRide(params: EstimateRideParams): ResultFuture<RideOptions> {
-    throw new Error("Method not implemented.");
+  async estimateRide(params: EstimateRideParams): ResultFuture<RideOptions> {
+    try {
+      const result = await this.datasource.estimateRide(params);
+      return new Right(result);
+    } catch (error) {
+      if (error instanceof ServerException) {
+        return new Left(
+          new Failure({
+            error_code: error.errorCode,
+            error_description: error.message,
+            status_code: error.statusCode,
+          })
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 
   datasource: RideDataSource;
