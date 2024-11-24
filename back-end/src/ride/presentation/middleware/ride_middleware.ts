@@ -8,30 +8,33 @@ import { PrismaClient } from "@prisma/client";
 import { Client } from "@googlemaps/google-maps-services-js";
 import { ConfirmRide } from "../../domain/usecases/confirm_ride";
 import { GetRides } from "../../domain/usecases/get_rides";
+import { MapsDataSourceImpl } from "../../data/datasource/maps_data_source";
 
 const routingClient = new Client();
 
 const prismaClient = new PrismaClient();
 
+const mapsDataSource = new MapsDataSourceImpl({ routingClient });
+
 export const rideMiddleware = RideRouter(
   new CreateDriver(
     new RideRepositoryImpl(
-      new RideDataSourceImpl({ prismaClient, routingClient })
+      new RideDataSourceImpl({ prismaClient, mapsDataSource })
     )
   ),
   new EstimateRide(
     new RideRepositoryImpl(
-      new RideDataSourceImpl({ prismaClient, routingClient })
+      new RideDataSourceImpl({ prismaClient, mapsDataSource })
     )
   ),
   new ConfirmRide(
     new RideRepositoryImpl(
-      new RideDataSourceImpl({ prismaClient, routingClient })
+      new RideDataSourceImpl({ prismaClient, mapsDataSource })
     )
   ),
   new GetRides(
     new RideRepositoryImpl(
-      new RideDataSourceImpl({ prismaClient, routingClient })
+      new RideDataSourceImpl({ prismaClient, mapsDataSource })
     )
   )
 );

@@ -20,4 +20,4 @@ RUN npx prisma generate
 
 RUN apt-get update && apt-get install -y bash postgresql-client
 
-CMD ["/bin/bash", "-c", "/usr/local/bin/wait-for-it.sh -h database -p 5432 -t 30 -- npx prisma migrate dev --name init && yarn seed && npm run dev"]
+CMD ["/bin/bash", "-c", "/usr/local/bin/wait-for-it.sh -h database -p 5432 -t 30 -- npx prisma migrate deploy && yarn seed && npm run dev"]

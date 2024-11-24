@@ -9,9 +9,9 @@ import {
 } from "../../domain/entities/ride";
 require("dotenv").config();
 
-import { Client } from "@googlemaps/google-maps-services-js";
 import { ConfirmRideParams } from "../../domain/usecases/confirm_ride";
 import { GetRidesParams } from "../../domain/usecases/get_rides";
+import { MapsDataSource } from "./maps_data_source";
 
 export abstract class RideDataSource {
   abstract createDriver(params: Driver): Promise<Driver>;
@@ -21,18 +21,18 @@ export abstract class RideDataSource {
 }
 
 export class RideDataSourceImpl extends RideDataSource {
-  routingClient: Client;
+  mapsDataSource: MapsDataSource;
   prismaClient: PrismaClient;
   constructor({
     prismaClient,
-    routingClient,
+    mapsDataSource,
   }: {
     prismaClient: PrismaClient;
-    routingClient: Client;
+    mapsDataSource: MapsDataSource;
   }) {
     super();
     this.prismaClient = prismaClient;
-    this.routingClient = routingClient;
+    this.mapsDataSource = mapsDataSource;
   }
 
   async getRides(params: GetRidesParams): Promise<RidesResponse> {
@@ -149,68 +149,76 @@ export class RideDataSourceImpl extends RideDataSource {
   }
 
   async estimateRide(params: EstimateRideParams): Promise<RideOptions> {
-    const request = {
-      origin: params.origin,
-      destination: params.destination,
-    };
-    const routeResult = await this.routingClient.directions({
-      params: {
-        origin: request.origin,
-        destination: request.destination,
-        key: process.env.GOOGLE_API_KEY ?? "",
-      },
-      timeout: 1000,
-    });
-
-    const driverOptions = await this.prismaClient.driver.findMany({
-      include: {
-        review: true,
-      },
-      where: {
-        minKm: {
-          gte: routeResult.data.routes[0].legs[0].distance.value / 1000,
+    try {
+      const request = {
+        origin: params.origin,
+        destination: params.destination,
+      };
+      const routeResult = await this.mapsDataSource.getRouteInfo({
+        params: {
+          origin: request.origin,
+          destination: request.destination,
+          key: process.env.GOOGLE_API_KEY ?? "",
         },
-      },
-      orderBy: {
-        tax: "asc",
-      },
-    });
-
-    let options: DriverOption[] = [];
-
-    driverOptions.forEach((driver) => {
-      options.push({
-        id: driver.id,
-        name: driver.name,
-        description: driver.description,
-        vehicle: driver.car,
-        review: {
-          rating: driver.review?.rating ?? 0,
-          comment: driver.review?.comment ?? "",
-        },
-        value: parseFloat(
-          (
-            driver.tax *
-            (routeResult.data.routes[0].legs[0].distance.value / 1000)
-          ).toFixed(2)
-        ),
+        timeout: 1000,
       });
-    });
 
-    return {
-      origin: {
-        latitude: routeResult.data.routes[0].legs[0].start_location.lat,
-        longitude: routeResult.data.routes[0].legs[0].start_location.lng,
-      },
-      destination: {
-        latitude: routeResult.data.routes[0].legs[0].end_location.lat,
-        longitude: routeResult.data.routes[0].legs[0].end_location.lng,
-      },
-      distance: routeResult.data.routes[0].legs[0].distance.value,
-      duration: routeResult.data.routes[0].legs[0].duration.text,
-      options: options,
-      routeResponse: routeResult.data,
-    };
+      const driverOptions = await this.prismaClient.driver.findMany({
+        include: {
+          review: true,
+        },
+        where: {
+          minKm: {
+            gte: routeResult.data.routes[0].legs[0].distance.value / 1000,
+          },
+        },
+        orderBy: {
+          tax: "asc",
+        },
+      });
+
+      let options: DriverOption[] = [];
+
+      driverOptions.forEach((driver) => {
+        options.push({
+          id: driver.id,
+          name: driver.name,
+          description: driver.description,
+          vehicle: driver.car,
+          review: {
+            rating: driver.review?.rating ?? 0,
+            comment: driver.review?.comment ?? "",
+          },
+          value: parseFloat(
+            (
+              driver.tax *
+              (routeResult.data.routes[0].legs[0].distance.value / 1000)
+            ).toFixed(2)
+          ),
+        });
+      });
+
+      return {
+        origin: {
+          latitude: routeResult.data.routes[0].legs[0].start_location.lat,
+          longitude: routeResult.data.routes[0].legs[0].start_location.lng,
+        },
+        destination: {
+          latitude: routeResult.data.routes[0].legs[0].end_location.lat,
+          longitude: routeResult.data.routes[0].legs[0].end_location.lng,
+        },
+        distance: routeResult.data.routes[0].legs[0].distance.value,
+        duration: routeResult.data.routes[0].legs[0].duration.text,
+        options: options,
+        routeResponse: routeResult.data,
+      };
+    } catch (error) {
+      throw new ServerException(
+        error?.toString() ?? "Unknown error",
+        400,
+        "ESTIMATE_RIDE_ERROR"
+      );
+    }
   }
 
   async createDriver(params: Driver): Promise<Driver> {
