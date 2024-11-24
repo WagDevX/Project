@@ -2,16 +2,22 @@ import { PrismaClient } from "@prisma/client";
 import { Driver } from "../../domain/entities/driver";
 import { ServerException } from "../../../core/errors/exception";
 import { EstimateRideParams } from "../../domain/usecases/estimate_ride";
-import { DriverOption, RideOptions } from "../../domain/entities/ride";
+import {
+  DriverOption,
+  RideOptions,
+  RidesResponse,
+} from "../../domain/entities/ride";
 require("dotenv").config();
 
 import { Client } from "@googlemaps/google-maps-services-js";
 import { ConfirmRideParams } from "../../domain/usecases/confirm_ride";
+import { GetRidesParams } from "../../domain/usecases/get_rides";
 
 export abstract class RideDataSource {
   abstract createDriver(params: Driver): Promise<Driver>;
   abstract estimateRide(params: EstimateRideParams): Promise<RideOptions>;
   abstract confirmRide(params: ConfirmRideParams): Promise<void>;
+  abstract getRides(params: GetRidesParams): Promise<RidesResponse>;
 }
 
 export class RideDataSourceImpl extends RideDataSource {
@@ -27,6 +33,75 @@ export class RideDataSourceImpl extends RideDataSource {
     super();
     this.prismaClient = prismaClient;
     this.routingClient = routingClient;
+  }
+
+  async getRides(params: GetRidesParams): Promise<RidesResponse> {
+    try {
+      if (params.driver_id !== undefined) {
+        const driver = await this.prismaClient.driver.findUnique({
+          where: { id: params.driver_id },
+        });
+        if (!driver) {
+          throw new ServerException(
+            "Motorista inválido",
+            400,
+            "INVALID_DRIVER"
+          );
+        }
+      }
+
+      const rides = await this.prismaClient.ride.findMany({
+        where: {
+          customerId: params.customer_id,
+          ...(params.driver_id && { driverId: params.driver_id }),
+        },
+        include: {
+          driver: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          date: "desc",
+        },
+      });
+
+      if (rides.length === 0) {
+        throw new ServerException(
+          "Nenhum registro encontrado",
+          404,
+          "NO_RIDES_FOUND"
+        );
+      }
+
+      return {
+        customer_id: params.customer_id,
+        rides: rides.map((ride) => {
+          return {
+            origin: ride.origin,
+            destination: ride.destination,
+            distance: ride.distance,
+            date: ride.date,
+            duration: ride.duration,
+            value: ride.value,
+            driver: {
+              id: ride.driverId,
+              name: ride.driver.name,
+            },
+          };
+        }),
+      };
+    } catch (error) {
+      if (error instanceof ServerException) {
+        throw error;
+      }
+      throw new ServerException(
+        error?.toString() ?? "Unknown error",
+        400,
+        "GET_RIDES_ERROR"
+      );
+    }
   }
 
   async confirmRide(params: ConfirmRideParams): Promise<void> {

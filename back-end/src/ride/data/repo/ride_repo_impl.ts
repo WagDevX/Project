@@ -6,15 +6,34 @@ import {
   Right,
 } from "../../../core/typedefs/result_future";
 import { Driver } from "../../domain/entities/driver";
-import { RideOptions } from "../../domain/entities/ride";
+import { RideOptions, RidesResponse } from "../../domain/entities/ride";
 import { RideRepository } from "../../domain/repo/ride_repository";
 import { ConfirmRideParams } from "../../domain/usecases/confirm_ride";
 import { EstimateRideParams } from "../../domain/usecases/estimate_ride";
+import { GetRidesParams } from "../../domain/usecases/get_rides";
 import { RideDataSource } from "../datasource/ride_data_source";
 
 export class RideRepositoryImpl implements RideRepository {
   constructor(datasource: RideDataSource) {
     this.datasource = datasource;
+  }
+  async getRides(params: GetRidesParams): ResultFuture<RidesResponse> {
+    try {
+      const result = await this.datasource.getRides(params);
+      return new Right(result);
+    } catch (error) {
+      if (error instanceof ServerException) {
+        return new Left(
+          new Failure({
+            error_code: error.errorCode,
+            error_description: error.message,
+            status_code: error.statusCode,
+          })
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 
   async confirmRide(params: ConfirmRideParams): ResultFuture<void> {

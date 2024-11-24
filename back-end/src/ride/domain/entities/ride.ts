@@ -26,8 +26,8 @@ export interface DriverOption {
 }
 
 export interface Ride {
-  id: number;
   customer_id: string;
+  id: number;
   date: Date;
   origin: string;
   destination: string;
@@ -38,4 +38,20 @@ export interface Ride {
     name: string;
   };
   value: number;
+}
+
+export interface RidesResponse {
+  customer_id: string;
+  rides: {
+    date: Date;
+    origin: string;
+    destination: string;
+    distance: number;
+    duration: string;
+    driver: {
+      id: number;
+      name: string;
+    };
+    value: number;
+  }[];
 }
