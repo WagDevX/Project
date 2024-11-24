@@ -9,7 +9,12 @@ function App() {
   return (
     <APIProvider apiKey={apiKey}>
       <Wrapper>
-        <Navigation />
+        <div className=" relative w-full">
+          <div className="absolute top-0 w-full z-10">
+            <Navigation />
+          </div>
+        </div>
+
         <DefaultRoutes />
       </Wrapper>
     </APIProvider>

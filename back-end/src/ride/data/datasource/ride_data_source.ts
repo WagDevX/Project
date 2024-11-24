@@ -214,9 +214,9 @@ export class RideDataSourceImpl extends RideDataSource {
       };
     } catch (error) {
       throw new ServerException(
-        error?.toString() ?? "Unknown error",
+        "Erro ao estimar a corrida, verifique os dados informados e tente novamente",
         400,
-        "ESTIMATE_RIDE_ERROR"
+        "INVALID_DATA"
       );
     }
   }

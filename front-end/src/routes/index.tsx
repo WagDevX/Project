@@ -7,7 +7,7 @@ export const DefaultRoutes = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Estimate />} />
-        <Route path="/search" element={<History />} />
+        <Route path="/history" element={<History />} />
       </Routes>
     </BrowserRouter>
   );
