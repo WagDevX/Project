@@ -6,10 +6,12 @@ import { DriverOption, RideOptions } from "../../domain/entities/ride";
 require("dotenv").config();
 
 import { Client } from "@googlemaps/google-maps-services-js";
+import { ConfirmRideParams } from "../../domain/usecases/confirm_ride";
 
 export abstract class RideDataSource {
   abstract createDriver(params: Driver): Promise<Driver>;
   abstract estimateRide(params: EstimateRideParams): Promise<RideOptions>;
+  abstract confirmRide(params: ConfirmRideParams): Promise<void>;
 }
 
 export class RideDataSourceImpl extends RideDataSource {
@@ -25,6 +27,50 @@ export class RideDataSourceImpl extends RideDataSource {
     super();
     this.prismaClient = prismaClient;
     this.routingClient = routingClient;
+  }
+
+  async confirmRide(params: ConfirmRideParams): Promise<void> {
+    try {
+      const driver = await this.prismaClient.driver.findUnique({
+        where: { id: params.driver.id },
+      });
+
+      if (!driver) {
+        throw new ServerException(
+          "Motorista não encontrado",
+          404,
+          "DRIVER_NOT_FOUND"
+        );
+      }
+
+      if (params.distance / 1000 > driver.minKm) {
+        throw new ServerException(
+          "Quilometragem inválida para o motorista",
+          406,
+          "INVALID_DISTANCE"
+        );
+      }
+      await this.prismaClient.ride.create({
+        data: {
+          customerId: params.customer_id,
+          driverId: params.driver.id,
+          origin: params.origin,
+          destination: params.destination,
+          distance: params.distance,
+          duration: params.duration,
+          value: params.value,
+        },
+      });
+    } catch (error) {
+      if (error instanceof ServerException) {
+        throw error;
+      }
+      throw new ServerException(
+        error?.toString() ?? "Unknown error",
+        400,
+        "CREATE_RIDE_ERROR"
+      );
+    }
   }
 
   async estimateRide(params: EstimateRideParams): Promise<RideOptions> {
@@ -49,6 +95,9 @@ export class RideDataSourceImpl extends RideDataSource {
         minKm: {
           gte: routeResult.data.routes[0].legs[0].distance.value / 1000,
         },
+      },
+      orderBy: {
+        tax: "asc",
       },
     });
 

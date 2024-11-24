@@ -6,6 +6,7 @@ import RideRouter from "../router/ride_router";
 import { PrismaClient } from "@prisma/client";
 
 import { Client } from "@googlemaps/google-maps-services-js";
+import { ConfirmRide } from "../../domain/usecases/confirm_ride";
 
 const routingClient = new Client();
 
@@ -18,6 +19,11 @@ export const rideMiddleware = RideRouter(
     )
   ),
   new EstimateRide(
+    new RideRepositoryImpl(
+      new RideDataSourceImpl({ prismaClient, routingClient })
+    )
+  ),
+  new ConfirmRide(
     new RideRepositoryImpl(
       new RideDataSourceImpl({ prismaClient, routingClient })
     )

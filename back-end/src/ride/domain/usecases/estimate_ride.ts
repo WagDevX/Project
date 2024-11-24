@@ -12,34 +12,19 @@ export class EstimateRide extends UseCaseWithParams<
     super();
   }
   async call(params: EstimateRideParams): ResultFuture<RideOptions> {
-    if (!params.origin || !params.destination) {
-      return new Left(
-        new Failure({
-          error_code: "INVALID_DATA",
-          error_description:
-            "Os dados fornecidos no corpo da requisição são inválidos ",
-          status_code: 400,
-        })
-      );
-    }
+    const { origin, destination, customer_id } = params;
 
-    if (params.customer_id === undefined || params.customer_id === null) {
+    if (
+      !origin.trim() ||
+      !destination.trim() ||
+      !customer_id.trim() ||
+      origin === destination
+    ) {
       return new Left(
         new Failure({
           error_code: "INVALID_DATA",
           error_description:
-            "Os dados fornecidos no corpo da requisição são inválidos ",
-          status_code: 400,
-        })
-      );
-    }
-
-    if (params.origin === params.destination) {
-      return new Left(
-        new Failure({
-          error_code: "INVALID_DATA",
-          error_description:
-            "Os dados fornecidos no corpo da requisição são inválidos.",
+            "Os dados fornecidos no corpo da requisição são inválidos",
           status_code: 400,
         })
       );
@@ -50,7 +35,7 @@ export class EstimateRide extends UseCaseWithParams<
 }
 
 export interface EstimateRideParams {
-  customer_id: number;
+  customer_id: string;
   origin: string;
   destination: string;
 }

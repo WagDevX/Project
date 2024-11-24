@@ -14,16 +14,12 @@ datasource db {
 }
 
 
-model Customer {
-  id    Int    @id @default(autoincrement())
-  name  String
-  rides Ride[] @relation("CustomerRides")
-}
+
 
 model Driver {
   id          Int      @id @default(autoincrement())
   description String
-  name        String
+  name        String   @unique
   car         String
   tax         Float
   review      Review?   @relation("DriverReviews")
@@ -34,21 +30,20 @@ model Driver {
 model Review {
   id       Int    @id @default(autoincrement())
   rating   Int?
-  comment  String?
+  comment  String?  
   driver   Driver?  @relation("DriverReviews",fields: [driverId] , references: [id])
   driverId Int     @unique
 }
 
 model Ride {
   id          Int      @id @default(autoincrement())
-  date        DateTime
+  date        DateTime @default(now())
   origin      String
   destination String
   distance    Float
   duration    String
   driverId    Int
   driver      Driver   @relation("DriverRides", fields: [driverId], references: [id])
-  customer    Customer @relation("CustomerRides", fields: [customerId], references: [id])
-  customerId  Int
+  customerId  String
   value       Float
 }

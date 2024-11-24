@@ -27,6 +27,7 @@ export interface DriverOption {
 
 export interface Ride {
   id: number;
+  customer_id: string;
   date: Date;
   origin: string;
   destination: string;
