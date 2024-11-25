@@ -1,4 +1,3 @@
-import { Navigation } from "./components/navigation";
 import { Wrapper } from "./components/wrapper";
 import { RideProvider } from "./context/ride_context";
 import { DefaultRoutes } from "./routes";
@@ -11,11 +10,6 @@ function App() {
     <RideProvider>
       <APIProvider apiKey={apiKey}>
         <Wrapper>
-          <div className=" relative w-full">
-            <div className="absolute top-0 w-full z-10">
-              <Navigation />
-            </div>
-          </div>
           <DefaultRoutes />
         </Wrapper>
       </APIProvider>

@@ -4,6 +4,10 @@ import { EstimateRideParams } from "../../core/types/params";
 import { RideOptionsView } from "./ride_options";
 import { RideContext } from "../../context/ride_context";
 
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+const MySwal = withReactContent(Swal);
+
 export const BottomNav = () => {
   const { state, dispatch } = useContext(RideContext);
 
@@ -21,7 +25,11 @@ export const BottomNav = () => {
         dispatch({ type: "SET_RIDE_OPTIONS", payload: response.data });
       })
       .catch((error) => {
-        console.error(error.response.data);
+        MySwal.fire({
+          title: "OPS!",
+          icon: "error",
+          text: error.response.data.error_description,
+        });
       });
   };
 

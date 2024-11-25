@@ -17,7 +17,7 @@ export const RideOptionsView = () => {
         <label htmlFor="">Tempo: {rideOptions.duration}</label>
       </div>
       {rideOptions.options.length === 0 && (
-        <h1 className="text-bold text-2xl">
+        <h1 className="text-bold text-2xl mt-10 mb-20">
           Nenhum motorista disponível para este trajeto
         </h1>
       )}

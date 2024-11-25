@@ -3,6 +3,7 @@ import { BottomNav } from "../../components/bottom_nav/bottom_nav";
 
 import GoogleMapReact from "google-map-react";
 import { RideContext } from "../../context/ride_context";
+import { Navigation } from "../../components/navigation";
 
 export const Estimate = () => {
   const { state } = useContext(RideContext);
@@ -15,11 +16,6 @@ export const Estimate = () => {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
       });
-      console.log(
-        "Got location: ",
-        position.coords.latitude,
-        position.coords.longitude
-      );
     };
 
     const error = () => {
@@ -62,6 +58,11 @@ export const Estimate = () => {
 
   return (
     <div className="relative h-full w-full">
+      <div className=" relative w-full">
+        <div className="absolute top-0 w-full z-10">
+          <Navigation />
+        </div>
+      </div>
       <MapWithADirectionsRenderer
         center={center}
         zoom={12}
@@ -129,7 +130,7 @@ function MapWithADirectionsRenderer(props: {
   }, [props.origin, props.destination]);
 
   return (
-    <div style={{ height: "70vh", width: "100%", marginTop: "50px" }}>
+    <div style={{ height: "70vh", width: "100%", marginTop: "100px" }}>
       <GoogleMapReact
         bootstrapURLKeys={{ key: import.meta.env.VITE_GOOGLE_API_KEY }}
         defaultCenter={props.center}

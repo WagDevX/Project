@@ -20,7 +20,8 @@ type Action =
   | { type: "SET_DRIVERS"; payload: Driver[] }
   | { type: "SET_RIDES"; payload: Ride[] }
   | { type: "SET_RIDE_OPTIONS"; payload: RideOptions }
-  | { type: "SET_RIDES_RESPONSE"; payload: RidesResponse };
+  | { type: "SET_RIDES_RESPONSE"; payload: RidesResponse }
+  | { type: "CLEAR_RIDE_OPTIONS" };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -32,6 +33,8 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, rideOptions: action.payload };
     case "SET_RIDES_RESPONSE":
       return { ...state, ridesResponse: action.payload };
+    case "CLEAR_RIDE_OPTIONS":
+      return { ...state, rideOptions: null };
     default:
       return state;
   }
