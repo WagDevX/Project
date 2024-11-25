@@ -4,6 +4,7 @@
   "main": "server.js",
   "license": "MIT",
   "devDependencies": {
+    "@johanblumenberg/ts-mockito": "^1.0.45",
     "@types/express": "^5.0.0",
     "@types/node": "^22.9.3",
     "epress": "^0.0.1-security",
@@ -15,14 +16,20 @@
     "run": "ts-node src/server.ts",
     "start": "ts-node src/server.ts",
     "dev": "ts-node src/server.ts",
-    "seed": "ts-node --transpile-only prisma/seed.ts"
+    "seed": "ts-node --transpile-only prisma/seed.ts",
+    "test": "jest --watchAll --collectCoverage"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.0",
     "@prisma/client": "^5.22.0",
     "@prisma/extension-optimize": "^1.0.3",
+    "@types/jest": "^29.5.14",
+    "@types/supertest": "^6.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5"
   }
 }

@@ -14,8 +14,7 @@ export class GetRides extends UseCaseWithParams<RidesResponse, GetRidesParams> {
       return new Left(
         new Failure({
           error_code: "INVALID_DATA",
-          error_description:
-            "O id do cliente é obrigatório para buscar as corridas",
+          error_description: "O id do cliente é obrigatório para buscar as corridas",
           status_code: 400,
         })
       );
@@ -26,5 +25,5 @@ export class GetRides extends UseCaseWithParams<RidesResponse, GetRidesParams> {
 
 export interface GetRidesParams {
   customer_id: string;
-  driver_id: number;
+  driver_id: number | undefined;
 }
