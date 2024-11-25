@@ -1,10 +1,6 @@
 import { ServerException } from "../../../core/errors/exception";
 import { Failure } from "../../../core/errors/failure";
-import {
-  Left,
-  ResultFuture,
-  Right,
-} from "../../../core/typedefs/result_future";
+import { Left, ResultFuture, Right } from "../../../core/typedefs/result_future";
 import { Driver } from "../../domain/entities/driver";
 import { RideOptions, RidesResponse } from "../../domain/entities/ride";
 import { RideRepository } from "../../domain/repo/ride_repository";
@@ -31,7 +27,13 @@ export class RideRepositoryImpl implements RideRepository {
           })
         );
       } else {
-        throw error;
+        return new Left(
+          new Failure({
+            error_code: "INTERNAL_SERVER_ERROR",
+            error_description: "Internal Server Error",
+            status_code: 500,
+          })
+        );
       }
     }
   }
@@ -50,7 +52,13 @@ export class RideRepositoryImpl implements RideRepository {
           })
         );
       } else {
-        throw error;
+        return new Left(
+          new Failure({
+            error_code: "INTERNAL_SERVER_ERROR",
+            error_description: "Internal Server Error",
+            status_code: 500,
+          })
+        );
       }
     }
   }
@@ -69,7 +77,13 @@ export class RideRepositoryImpl implements RideRepository {
           })
         );
       } else {
-        throw error;
+        return new Left(
+          new Failure({
+            error_code: "INTERNAL_SERVER_ERROR",
+            error_description: "Internal Server Error",
+            status_code: 500,
+          })
+        );
       }
     }
   }
@@ -90,7 +104,13 @@ export class RideRepositoryImpl implements RideRepository {
           })
         );
       } else {
-        throw error;
+        return new Left(
+          new Failure({
+            error_code: "INTERNAL_SERVER_ERROR",
+            error_description: "Internal Server Error",
+            status_code: 500,
+          })
+        );
       }
     }
   }
