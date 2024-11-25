@@ -2,16 +2,13 @@ import { PrismaClient } from "@prisma/client";
 import { Driver } from "../../domain/entities/driver";
 import { ServerException } from "../../../core/errors/exception";
 import { EstimateRideParams } from "../../domain/usecases/estimate_ride";
-import {
-  DriverOption,
-  RideOptions,
-  RidesResponse,
-} from "../../domain/entities/ride";
+import { DriverOption, RideOptions, RidesResponse } from "../../domain/entities/ride";
 require("dotenv").config();
 
 import { ConfirmRideParams } from "../../domain/usecases/confirm_ride";
 import { GetRidesParams } from "../../domain/usecases/get_rides";
 import { MapsDataSource } from "./maps_data_source";
+import { Context } from "../../../unit-tests/context/context";
 
 export abstract class RideDataSource {
   abstract createDriver(params: Driver): Promise<Driver>;
@@ -22,14 +19,8 @@ export abstract class RideDataSource {
 
 export class RideDataSourceImpl extends RideDataSource {
   mapsDataSource: MapsDataSource;
-  prismaClient: PrismaClient;
-  constructor({
-    prismaClient,
-    mapsDataSource,
-  }: {
-    prismaClient: PrismaClient;
-    mapsDataSource: MapsDataSource;
-  }) {
+  prismaClient: Context;
+  constructor({ prismaClient, mapsDataSource }: { prismaClient: Context; mapsDataSource: MapsDataSource }) {
     super();
     this.prismaClient = prismaClient;
     this.mapsDataSource = mapsDataSource;
@@ -38,19 +29,15 @@ export class RideDataSourceImpl extends RideDataSource {
   async getRides(params: GetRidesParams): Promise<RidesResponse> {
     try {
       if (params.driver_id !== undefined) {
-        const driver = await this.prismaClient.driver.findUnique({
+        const driver = await this.prismaClient.prisma.driver.findUnique({
           where: { id: params.driver_id },
         });
         if (!driver) {
-          throw new ServerException(
-            "Motorista inválido",
-            400,
-            "INVALID_DRIVER"
-          );
+          throw new ServerException("Motorista inválido", 400, "INVALID_DRIVER");
         }
       }
 
-      const rides = await this.prismaClient.ride.findMany({
+      const rides = await this.prismaClient.prisma.ride.findMany({
         where: {
           customerId: params.customer_id,
           ...(params.driver_id && { driverId: params.driver_id }),
@@ -68,11 +55,7 @@ export class RideDataSourceImpl extends RideDataSource {
       });
 
       if (rides.length === 0) {
-        throw new ServerException(
-          "Nenhum registro encontrado",
-          404,
-          "NO_RIDES_FOUND"
-        );
+        throw new ServerException("Nenhum registro encontrado", 404, "NO_RIDES_FOUND");
       }
 
       return {
@@ -96,36 +79,24 @@ export class RideDataSourceImpl extends RideDataSource {
       if (error instanceof ServerException) {
         throw error;
       }
-      throw new ServerException(
-        error?.toString() ?? "Unknown error",
-        400,
-        "GET_RIDES_ERROR"
-      );
+      throw new ServerException(error?.toString() ?? "Unknown error", 400, "GET_RIDES_ERROR");
     }
   }
 
   async confirmRide(params: ConfirmRideParams): Promise<void> {
     try {
-      const driver = await this.prismaClient.driver.findUnique({
+      const driver = await this.prismaClient.prisma.driver.findUnique({
         where: { id: params.driver.id },
       });
 
       if (!driver) {
-        throw new ServerException(
-          "Motorista não encontrado",
-          404,
-          "DRIVER_NOT_FOUND"
-        );
+        throw new ServerException("Motorista não encontrado", 404, "DRIVER_NOT_FOUND");
       }
 
       if (params.distance / 1000 > driver.minKm) {
-        throw new ServerException(
-          "Quilometragem inválida para o motorista",
-          406,
-          "INVALID_DISTANCE"
-        );
+        throw new ServerException("Quilometragem inválida para o motorista", 406, "INVALID_DISTANCE");
       }
-      await this.prismaClient.ride.create({
+      await this.prismaClient.prisma.ride.create({
         data: {
           customerId: params.customer_id,
           driverId: params.driver.id,
@@ -140,11 +111,7 @@ export class RideDataSourceImpl extends RideDataSource {
       if (error instanceof ServerException) {
         throw error;
       }
-      throw new ServerException(
-        error?.toString() ?? "Unknown error",
-        400,
-        "CREATE_RIDE_ERROR"
-      );
+      throw new ServerException(error?.toString() ?? "Unknown error", 400, "CREATE_RIDE_ERROR");
     }
   }
 
@@ -163,7 +130,7 @@ export class RideDataSourceImpl extends RideDataSource {
         timeout: 1000,
       });
 
-      const driverOptions = await this.prismaClient.driver.findMany({
+      const driverOptions = await this.prismaClient.prisma.driver.findMany({
         include: {
           review: true,
         },
@@ -189,12 +156,7 @@ export class RideDataSourceImpl extends RideDataSource {
             rating: driver.review?.rating ?? 0,
             comment: driver.review?.comment ?? "",
           },
-          value: parseFloat(
-            (
-              driver.tax *
-              (routeResult.data.routes[0].legs[0].distance.value / 1000)
-            ).toFixed(2)
-          ),
+          value: parseFloat((driver.tax * (routeResult.data.routes[0].legs[0].distance.value / 1000)).toFixed(2)),
         });
       });
 
@@ -213,17 +175,13 @@ export class RideDataSourceImpl extends RideDataSource {
         routeResponse: routeResult.data,
       };
     } catch (error) {
-      throw new ServerException(
-        "Erro ao estimar a corrida, verifique os dados informados e tente novamente",
-        400,
-        "INVALID_DATA"
-      );
+      throw new ServerException("Erro ao estimar a corrida, verifique os dados informados e tente novamente", 400, "INVALID_DATA");
     }
   }
 
   async createDriver(params: Driver): Promise<Driver> {
     try {
-      const result = await this.prismaClient.driver.create({
+      const result = await this.prismaClient.prisma.driver.create({
         data: {
           description: params.description,
           name: params.name,
@@ -242,11 +200,7 @@ export class RideDataSourceImpl extends RideDataSource {
 
       return driverCreated;
     } catch (error) {
-      throw new ServerException(
-        error?.toString() ?? "Unknown error",
-        400,
-        "CREATE_DRIVER_ERROR"
-      );
+      throw new ServerException(error?.toString() ?? "Unknown error", 400, "CREATE_DRIVER_ERROR");
     }
   }
 }
