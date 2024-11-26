@@ -7,6 +7,7 @@ interface State {
   rides: Ride[];
   rideOptions: RideOptions | null;
   ridesResponse: RidesResponse | null;
+  customer_id: string;
 }
 
 const initialState: State = {
@@ -14,6 +15,7 @@ const initialState: State = {
   rides: [],
   rideOptions: null,
   ridesResponse: null,
+  customer_id: "",
 };
 
 type Action =
@@ -21,7 +23,8 @@ type Action =
   | { type: "SET_RIDES"; payload: Ride[] }
   | { type: "SET_RIDE_OPTIONS"; payload: RideOptions }
   | { type: "SET_RIDES_RESPONSE"; payload: RidesResponse }
-  | { type: "CLEAR_RIDE_OPTIONS" };
+  | { type: "CLEAR_RIDE_OPTIONS" }
+  | { type: "SET_CUSTOMER_ID"; payload: string };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -35,6 +38,8 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, ridesResponse: action.payload };
     case "CLEAR_RIDE_OPTIONS":
       return { ...state, rideOptions: null };
+    case "SET_CUSTOMER_ID":
+      return { ...state, customer_id: action.payload };
     default:
       return state;
   }

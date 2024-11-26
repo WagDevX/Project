@@ -4,7 +4,7 @@ interface WrapperProps {
 
 export const Wrapper = ({ children }: WrapperProps) => {
   return (
-    <main className="flex justify-center h-screen ">
+    <main className="flex justify-center min-h-screen ">
       <div className="flex flex-col max-w-[1200px] w-full">{children}</div>
     </main>
   );

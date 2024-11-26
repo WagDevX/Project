@@ -10,7 +10,7 @@ export interface RideOptions {
   distance: number;
   duration: string;
   options: DriverOption[];
-  routeResponse: object;
+  routeResponse: google.maps.DirectionsResult;
 }
 
 export interface DriverOption {
@@ -26,8 +26,6 @@ export interface DriverOption {
 }
 
 export interface Ride {
-  customer_id: string;
-  id: number;
   date: Date;
   origin: string;
   destination: string;

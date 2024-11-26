@@ -19,5 +19,5 @@ export interface EstimateRideParams {
 
 export interface GetRidesParams {
   customer_id: string;
-  driver_id: number;
+  driver_id: number | undefined;
 }
