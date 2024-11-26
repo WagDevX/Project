@@ -2,11 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { Driver } from "../../domain/entities/driver";
 import { ServerException } from "../../../core/errors/exception";
 import { EstimateRideParams } from "../../domain/usecases/estimate_ride";
-import {
-  DriverOption,
-  RideOptions,
-  RidesResponse,
-} from "../../domain/entities/ride";
+import { DriverOption, RideOptions, RidesResponse } from "../../domain/entities/ride";
 require("dotenv").config();
 
 import { ConfirmRideParams } from "../../domain/usecases/confirm_ride";
@@ -24,13 +20,7 @@ export abstract class RideDataSource {
 export class RideDataSourceImpl extends RideDataSource {
   mapsDataSource: MapsDataSource;
   prismaClient: Context;
-  constructor({
-    prismaClient,
-    mapsDataSource,
-  }: {
-    prismaClient: Context;
-    mapsDataSource: MapsDataSource;
-  }) {
+  constructor({ prismaClient, mapsDataSource }: { prismaClient: Context; mapsDataSource: MapsDataSource }) {
     super();
     this.prismaClient = prismaClient;
     this.mapsDataSource = mapsDataSource;
@@ -43,11 +33,7 @@ export class RideDataSourceImpl extends RideDataSource {
           where: { id: params.driver_id },
         });
         if (!driver) {
-          throw new ServerException(
-            "Motorista inválido",
-            400,
-            "INVALID_DRIVER"
-          );
+          throw new ServerException("Motorista inválido", 400, "INVALID_DRIVER");
         }
       }
 
@@ -69,11 +55,7 @@ export class RideDataSourceImpl extends RideDataSource {
       });
 
       if (rides.length === 0) {
-        throw new ServerException(
-          "Nenhum registro encontrado",
-          404,
-          "NO_RIDES_FOUND"
-        );
+        throw new ServerException("Nenhum registro encontrado", 404, "NO_RIDES_FOUND");
       }
 
       return {
@@ -93,15 +75,9 @@ export class RideDataSourceImpl extends RideDataSource {
           };
         }),
       };
-    } catch (error) {
-      if (error instanceof ServerException) {
-        throw error;
-      }
-      throw new ServerException(
-        error?.toString() ?? "Unknown error",
-        400,
-        "GET_RIDES_ERROR"
-      );
+    } catch (error: any) {
+      const errors = error as ServerException;
+      throw new ServerException(errors.message, errors.statusCode, errors.errorCode);
     }
   }
 
@@ -112,19 +88,11 @@ export class RideDataSourceImpl extends RideDataSource {
       });
 
       if (!driver) {
-        throw new ServerException(
-          "Motorista não encontrado",
-          404,
-          "DRIVER_NOT_FOUND"
-        );
+        throw new ServerException("Motorista não encontrado", 404, "DRIVER_NOT_FOUND");
       }
 
       if (params.distance / 1000 > driver.minKm) {
-        throw new ServerException(
-          "Quilometragem inválida para o motorista",
-          406,
-          "INVALID_DISTANCE"
-        );
+        throw new ServerException("Quilometragem inválida para o motorista", 406, "INVALID_DISTANCE");
       }
       await this.prismaClient.prisma.ride.create({
         data: {
@@ -137,15 +105,9 @@ export class RideDataSourceImpl extends RideDataSource {
           value: params.value,
         },
       });
-    } catch (error) {
-      if (error instanceof ServerException) {
-        throw error;
-      }
-      throw new ServerException(
-        error?.toString() ?? "Unknown error",
-        400,
-        "CREATE_RIDE_ERROR"
-      );
+    } catch (error: any) {
+      const errors = error as ServerException;
+      throw new ServerException(errors.message, errors.statusCode, errors.errorCode);
     }
   }
 
@@ -159,7 +121,7 @@ export class RideDataSourceImpl extends RideDataSource {
         params: {
           origin: request.origin,
           destination: request.destination,
-          key: process.env.GOOGLE_API_KEY ?? "",
+          key: process.env.GOOGLE_API_KEY!,
         },
         timeout: 1000,
       });
@@ -187,15 +149,10 @@ export class RideDataSourceImpl extends RideDataSource {
           description: driver.description,
           vehicle: driver.car,
           review: {
-            rating: driver.review?.rating ?? 0,
-            comment: driver.review?.comment ?? "",
+            rating: driver.review?.rating,
+            comment: driver.review?.comment,
           },
-          value: parseFloat(
-            (
-              driver.tax *
-              (routeResult.data.routes[0].legs[0].distance.value / 1000)
-            ).toFixed(2)
-          ),
+          value: parseFloat((driver.tax * (routeResult.data.routes[0].legs[0].distance.value / 1000)).toFixed(2)),
         });
       });
 
@@ -214,11 +171,7 @@ export class RideDataSourceImpl extends RideDataSource {
         routeResponse: routeResult.data,
       };
     } catch (error) {
-      throw new ServerException(
-        "Erro ao estimar a corrida, verifique os dados informados e tente novamente",
-        400,
-        "INVALID_DATA"
-      );
+      throw new ServerException("Erro ao estimar a corrida, verifique os dados informados e tente novamente", 400, "INVALID_DATA");
     }
   }
 
@@ -242,12 +195,9 @@ export class RideDataSourceImpl extends RideDataSource {
       };
 
       return driverCreated;
-    } catch (error) {
-      throw new ServerException(
-        error?.toString() ?? "Unknown error",
-        400,
-        "CREATE_DRIVER_ERROR"
-      );
+    } catch (error: any) {
+      const errors = error as ServerException;
+      throw new ServerException(errors.message, errors.statusCode, errors.errorCode);
     }
   }
 }

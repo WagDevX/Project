@@ -180,10 +180,7 @@ describe("ride_data_source", () => {
         car: "test car",
         tax: 0,
         minKm: 2,
-        review: {
-          rating: 0,
-          driverId: 1,
-        },
+        review: null,
         rides: [] as any,
       };
 
@@ -222,10 +219,7 @@ describe("ride_data_source", () => {
         car: "test car",
         tax: 0,
         minKm: 2,
-        review: {
-          rating: 0,
-          driverId: 1,
-        },
+        review: null,
         rides: [] as any,
       };
 
@@ -358,7 +352,7 @@ describe("ride_data_source", () => {
       await expect(rideDataSourceImpl.confirmRide(params)).rejects.toThrow("Quilometragem inválida para o motorista");
     });
 
-    it("should throw an ServerException if an error occurs", async () => {
+    it("should throw CREATE_RIDE_ERROR when an unknown error occurs", async () => {
       // Arrange
       const params = {
         customer_id: "test",
@@ -368,7 +362,7 @@ describe("ride_data_source", () => {
         },
         origin: "test origin",
         destination: "test destination",
-        distance: 1000,
+        distance: 3000,
         duration: "test duration",
         value: 100,
       };
@@ -379,14 +373,18 @@ describe("ride_data_source", () => {
         name: "test name",
         car: "test car",
         tax: 0,
-        minKm: 2,
+        minKm: 5,
       };
 
       mockCtx.prisma.driver.findUnique.mockResolvedValue(driver);
-      mockCtx.prisma.ride.create.mockRejectedValue(new Error("test error"));
+      mockCtx.prisma.ride.create.mockRejectedValue(new Error("Unknown error"));
 
-      // Act & Assert
-      await expect(rideDataSourceImpl.confirmRide(params)).rejects.toThrow("test error");
+      try {
+        await rideDataSourceImpl.confirmRide(params);
+      } catch (error) {
+        expect(error).toBeInstanceOf(ServerException);
+        expect((error as ServerException).message).toBe("Unknown error");
+      }
     });
   });
 

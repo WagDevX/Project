@@ -7,7 +7,7 @@ export interface Driver {
   name: string;
   car: string;
   tax: number;
-  review: Review | undefined;
+  review: Review | undefined | null;
   minKm: number;
   rides: [Ride] | [];
 }

@@ -19,8 +19,8 @@ export interface DriverOption {
   description: string;
   vehicle: string;
   review: {
-    rating: number;
-    comment?: string;
+    rating: number | null | undefined;
+    comment: string | null | undefined;
   };
   value: number;
 }
