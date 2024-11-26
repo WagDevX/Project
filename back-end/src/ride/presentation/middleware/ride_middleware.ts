@@ -18,9 +18,9 @@ const prismaClient = {
 
 const mapsDataSource = new MapsDataSourceImpl({ routingClient });
 
-export const rideMiddleware = RideRouter(
+export const rideMiddleware = new RideRouter(
   new CreateDriver(new RideRepositoryImpl(new RideDataSourceImpl({ prismaClient, mapsDataSource }))),
   new EstimateRide(new RideRepositoryImpl(new RideDataSourceImpl({ prismaClient, mapsDataSource }))),
   new ConfirmRide(new RideRepositoryImpl(new RideDataSourceImpl({ prismaClient, mapsDataSource }))),
   new GetRides(new RideRepositoryImpl(new RideDataSourceImpl({ prismaClient, mapsDataSource })))
-);
+).getRouter();

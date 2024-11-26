@@ -5,29 +5,27 @@ import { EstimateRide } from "../../domain/usecases/estimate_ride";
 import { ConfirmRide } from "../../domain/usecases/confirm_ride";
 import { GetRides, GetRidesParams } from "../../domain/usecases/get_rides";
 
-export default function RideRouter(
-  createDriverUseCase: CreateDriver,
-  estimateRideUseCase: EstimateRide,
-  confirmRideUseCase: ConfirmRide,
-  getRidesUseCase: GetRides
-) {
-  const router = express.Router();
+class RideRouter {
+  private router = express.Router();
 
-  router.post("/create-driver", async (req, res) => {
-    const result = await createDriverUseCase.call(req.body);
+  constructor(
+    private createDriverUseCase: CreateDriver,
+    private estimateRideUseCase: EstimateRide,
+    private confirmRideUseCase: ConfirmRide,
+    private getRidesUseCase: GetRides
+  ) {
+    this.initializeRoutes();
+  }
 
-    if (result.isRight()) {
-      res.status(200).json(result.value);
-    }
+  private initializeRoutes() {
+    this.router.post("/create-driver", this.createDriverHandler.bind(this));
+    this.router.post("/estimate", this.estimateRideHandler.bind(this));
+    this.router.patch("/confirm", this.confirmRideHandler.bind(this));
+    this.router.get("/:customer_id", this.getRidesHandler.bind(this));
+  }
 
-    if (result.isLeft()) {
-      const error = result.value as Failure;
-      res.status(error.status_code).json(error.toJsonRes());
-    }
-  });
-
-  router.post("/estimate", async (req, res) => {
-    const result = await estimateRideUseCase.call(req.body);
+  private async createDriverHandler(req: express.Request, res: express.Response) {
+    const result = await this.createDriverUseCase.call(req.body);
 
     if (result.isRight()) {
       res.status(200).json(result.value);
@@ -37,10 +35,23 @@ export default function RideRouter(
       const error = result.value as Failure;
       res.status(error.status_code).json(error.toJsonRes());
     }
-  });
+  }
 
-  router.patch("/confirm", async (req, res) => {
-    const result = await confirmRideUseCase.call(req.body);
+  private async estimateRideHandler(req: express.Request, res: express.Response) {
+    const result = await this.estimateRideUseCase.call(req.body);
+
+    if (result.isRight()) {
+      res.status(200).json(result.value);
+    }
+
+    if (result.isLeft()) {
+      const error = result.value as Failure;
+      res.status(error.status_code).json(error.toJsonRes());
+    }
+  }
+
+  private async confirmRideHandler(req: express.Request, res: express.Response) {
+    const result = await this.confirmRideUseCase.call(req.body);
 
     if (result.isRight()) {
       res.status(200).json({ success: true });
@@ -50,9 +61,9 @@ export default function RideRouter(
       const error = result.value as Failure;
       res.status(error.status_code).json(error.toJsonRes());
     }
-  });
+  }
 
-  router.get("/:customer_id", async (req, res) => {
+  private async getRidesHandler(req: express.Request, res: express.Response) {
     const { driver_id } = req.query;
 
     const params: GetRidesParams = {
@@ -60,7 +71,7 @@ export default function RideRouter(
       driver_id: parseInt(driver_id as string),
     };
 
-    const result = await getRidesUseCase.call(params);
+    const result = await this.getRidesUseCase.call(params);
 
     if (result.isRight()) {
       res.status(200).json(result.value);
@@ -70,7 +81,11 @@ export default function RideRouter(
       const error = result.value as Failure;
       res.status(error.status_code).json(error.toJsonRes());
     }
-  });
+  }
 
-  return router;
+  public getRouter() {
+    return this.router;
+  }
 }
+
+export default RideRouter;
