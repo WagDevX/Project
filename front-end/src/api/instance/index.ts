@@ -14,6 +14,10 @@ export const apiInstance = axios.create({
 export const rideRequests = {
   estimate: (data: EstimateRideParams) => apiInstance.post("/estimate", data),
   confirm: (data: ConfirmRideParams) => apiInstance.patch("/confirm", data),
-  getRides: (data: GetRidesParams) =>
-    apiInstance.get(`/${data.customer_id}?driver_id=${data.driver_id}`),
+  getRides: (data: GetRidesParams) => {
+    const url = data.driver_id
+      ? `/${data.customer_id}?driver_id=${data.driver_id}`
+      : `/${data.customer_id}`;
+    return apiInstance.get(url);
+  },
 };

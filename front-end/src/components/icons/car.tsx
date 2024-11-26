@@ -1,5 +1,5 @@
-interface IconProps {
-  props: {
+export interface IconProps {
+  props?: {
     width: number | undefined;
     height: number | undefined;
     color: string | undefined;
@@ -10,11 +10,11 @@ export const CarIcon = ({ props }: IconProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      fill={props.color ?? "#000000"}
+      fill={props?.color ?? "#000000"}
       version="1.1"
       id="Capa_1"
-      width={props.width ?? 48}
-      height={props.height ?? 48}
+      width={props?.width ?? 48}
+      height={props?.height ?? 48}
       viewBox="0 0 48.997 48.998"
     >
       <g>
