@@ -13,7 +13,8 @@ export const HistoryCard = ({ ride }: { ride: Ride }) => {
         <div className="flex gap-1 items-center">
           <DateIcon />
           <label className="font-bold">
-            {new Date(ride.date).toLocaleDateString()}
+            {new Date(ride.date).toLocaleDateString()}{" "}
+            {new Date(ride.date).toLocaleTimeString()}
           </label>
         </div>
 
