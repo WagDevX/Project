@@ -132,7 +132,7 @@ function MapWithADirectionsRenderer(props: {
   return (
     <div style={{ height: "70vh", width: "100%", marginTop: "100px" }}>
       <GoogleMapReact
-        bootstrapURLKeys={{ key: import.meta.env.VITE_GOOGLE_API_KEY }}
+        bootstrapURLKeys={{ key: process.env.GOOGLE_API_KEY ?? "" }}
         defaultCenter={props.center}
         defaultZoom={props.zoom}
         onGoogleApiLoaded={({ map }) => handleApiLoaded(map)}

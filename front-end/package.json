@@ -12,9 +12,12 @@
   "dependencies": {
     "@vis.gl/react-google-maps": "^1.4.0",
     "axios": "^1.7.7",
+    "fs": "^0.0.1-security",
     "google-map-react": "^2.2.1",
+    "path": "^0.12.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^6.2.1",
     "react-tooltip": "^5.28.0",
     "sweetalert2": "^11.14.5",
     "sweetalert2-react-content": "^5.0.7"

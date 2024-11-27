@@ -1,6 +1,4 @@
-import { IconProps } from "./car";
-
-export const DriverIcon = ({ props }: IconProps) => {
+export const DriverIcon = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
